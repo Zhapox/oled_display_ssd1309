@@ -1,4 +1,4 @@
-# Volumio OLED Display Plugin (SSD1309) – v1.7.13
+# OLED SSD1309 Display Plugin for Volumio – v1.7.13
 
 > **⚠️ Disclaimer**
 >
