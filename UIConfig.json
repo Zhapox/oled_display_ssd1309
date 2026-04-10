@@ -1,0 +1,260 @@
+{
+  "page": {
+    "label": "OLED Display Settings"
+  },
+  "sections": [
+    {
+      "id": "hardware",
+      "element": "section",
+      "label": "Hardware Configuration",
+      "icon": "fa-microchip",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "user_interface/oled_display_ssd1309",
+        "method": "saveConfig"
+      },
+      "saveButton": {
+        "label": "Save",
+        "data": [
+          "i2c_bus_number",
+          "i2c_address",
+          "contrast",
+          "rotate_180"
+        ]
+      },
+      "content": [
+        {
+          "id": "i2c_bus_number",
+          "type": "number",
+          "element": "input",
+          "doc": "I2C bus number — usually 1 on Raspberry Pi (default: 1)",
+          "label": "I2C Bus Number",
+          "value": 1,
+          "attributes": [
+            { "placeholder": "1" },
+            { "min": 0 },
+            { "max": 10 }
+          ]
+        },
+        {
+          "id": "i2c_address",
+          "type": "text",
+          "element": "select",
+          "doc": "I2C address of the OLED display (default: 0x3C)",
+          "label": "I2C Address",
+          "value": {
+            "value": "0x3C",
+            "label": "0x3C (default)"
+          },
+          "options": [
+            {
+              "value": "0x3C",
+              "label": "0x3C (default)"
+            },
+            {
+              "value": "0x3D",
+              "label": "0x3D"
+            }
+          ]
+        },
+        {
+          "id": "contrast",
+          "type": "number",
+          "element": "input",
+          "doc": "Display contrast / brightness, 0 (off) to 255 (max) (default: 255)",
+          "label": "Contrast",
+          "value": 255,
+          "attributes": [
+            { "placeholder": "255" },
+            { "min": 0 },
+            { "max": 255 }
+          ]
+        },
+        {
+          "id": "rotate_180",
+          "type": "switch",
+          "element": "switch",
+          "doc": "Rotate display 180 degrees for upside-down mounted displays (default: off)",
+          "label": "Rotate 180°",
+          "value": false
+        }
+      ]
+    },
+    {
+      "id": "display",
+      "element": "section",
+      "label": "Display Options",
+      "icon": "fa-television",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "user_interface/oled_display_ssd1309",
+        "method": "saveConfig"
+      },
+      "saveButton": {
+        "label": "Save",
+        "data": [
+          "playback_layout",
+          "scroll_speed",
+          "render_interval_ms",
+          "idle_dim_seconds",
+          "idle_contrast",
+          "clock_24h",
+          "colon_blink",
+          "screensaver_mode",
+          "screensaver_seconds",
+          "volume_overlay_seconds"
+        ]
+      },
+      "content": [
+        {
+          "id": "playback_layout",
+          "type": "text",
+          "element": "select",
+          "doc": "Playback screen layout style (default: Classic)",
+          "label": "Playback Layout",
+          "value": {
+            "value": "classic",
+            "label": "Classic"
+          },
+          "options": [
+            {
+              "value": "classic",
+              "label": "Classic"
+            },
+            {
+              "value": "minimal",
+              "label": "Minimal"
+            },
+            {
+              "value": "clock_focus",
+              "label": "Clock Focus"
+            }
+          ]
+        },
+        {
+          "id": "scroll_speed",
+          "type": "number",
+          "element": "input",
+          "doc": "Text scroll speed in pixels per frame, 1 (slow) to 10 (fast) (default: 3)",
+          "label": "Scroll Speed",
+          "value": 3,
+          "attributes": [
+            { "placeholder": "3" },
+            { "min": 1 },
+            { "max": 10 }
+          ]
+        },
+        {
+          "id": "render_interval_ms",
+          "type": "number",
+          "element": "input",
+          "doc": "Display refresh interval in milliseconds. Lower = smoother but higher CPU usage (default: 500)",
+          "label": "Refresh Interval (ms)",
+          "value": 500,
+          "attributes": [
+            { "placeholder": "500" },
+            { "min": 200 },
+            { "max": 2000 }
+          ]
+        },
+        {
+          "id": "idle_dim_seconds",
+          "type": "number",
+          "element": "input",
+          "doc": "Dim display after this many seconds of idle. Set to 0 to never dim (default: 120)",
+          "label": "Idle Dim Timeout (s)",
+          "value": 120,
+          "attributes": [
+            { "placeholder": "120" },
+            { "min": 0 },
+            { "max": 3600 }
+          ]
+        },
+        {
+          "id": "idle_contrast",
+          "type": "number",
+          "element": "input",
+          "doc": "Contrast level when dimmed, 0 (off) to 255 (max) (default: 30)",
+          "label": "Dimmed Contrast",
+          "value": 30,
+          "attributes": [
+            { "placeholder": "30" },
+            { "min": 0 },
+            { "max": 255 }
+          ]
+        },
+        {
+          "id": "clock_24h",
+          "type": "switch",
+          "element": "switch",
+          "doc": "Use 24-hour clock format. When off, uses 12-hour with AM/PM (default: on)",
+          "label": "24-Hour Clock",
+          "value": true
+        },
+        {
+          "id": "colon_blink",
+          "type": "switch",
+          "element": "switch",
+          "doc": "Blink the colon on the idle screen clock, 1 second on / 1 second off (default: on)",
+          "label": "Colon Blink",
+          "value": true
+        },
+        {
+          "id": "screensaver_mode",
+          "type": "text",
+          "element": "select",
+          "doc": "Screensaver style activated after idle + dim timeout (default: Bouncing Clock)",
+          "label": "Screensaver",
+          "value": {
+            "value": "bouncing_clock",
+            "label": "Bouncing Clock"
+          },
+          "options": [
+            {
+              "value": "none",
+              "label": "None (stay on idle screen)"
+            },
+            {
+              "value": "bouncing_clock",
+              "label": "Bouncing Clock"
+            },
+            {
+              "value": "bouncing_dot",
+              "label": "Bouncing Dot"
+            },
+            {
+              "value": "drifting_text",
+              "label": "Drifting Volumio"
+            }
+          ]
+        },
+        {
+          "id": "screensaver_seconds",
+          "type": "number",
+          "element": "input",
+          "doc": "Activate screensaver after this many seconds past the dim timeout. Set to 0 to never activate (default: 300)",
+          "label": "Screensaver Timeout (s)",
+          "value": 300,
+          "attributes": [
+            { "placeholder": "300" },
+            { "min": 0 },
+            { "max": 7200 }
+          ]
+        },
+        {
+          "id": "volume_overlay_seconds",
+          "type": "number",
+          "element": "input",
+          "doc": "How long the full-screen volume overlay displays when volume changes (default: 2)",
+          "label": "Volume Overlay Duration (s)",
+          "value": 2,
+          "attributes": [
+            { "placeholder": "2" },
+            { "min": 1 },
+            { "max": 10 }
+          ]
+        }
+      ]
+    }
+  ]
+}
