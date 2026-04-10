@@ -1,5 +1,9 @@
 # Volumio OLED Display Plugin (SSD1309) – v1.7.13
 
+> **⚠️ Disclaimer**
+>
+> This plugin was developed with the assistance of AI (Claude by Anthropic). While it has been tested on real hardware and is functional, it is provided as-is without warranty. Use at your own risk. The author assumes no responsibility for any damage to your hardware, software, or data. Always back up your Volumio configuration before installing third-party plugins.
+
 Displays playback information on a 128×64 SSD1309 I2C OLED connected to a Raspberry Pi running Volumio.
 
 ---
@@ -9,12 +13,31 @@ Displays playback information on a 128×64 SSD1309 I2C OLED connected to a Raspb
 - **Now Playing:** scrolling track title and artist name
 - **Clock:** current time (12h or 24h format, configurable)
 - **Progress bar:** visual progress + elapsed / total time
-- **Audio format:** bit depth and sample rate of the current track
+- **Audio format:** codec type, bit depth, sample rate, or bitrate for webradio
 - **Volume:** current volume percentage + full-screen overlay on change
 - **Idle screen:** large clock with date and volume, auto-dim after configurable timeout
 - **Screensaver:** bouncing clock, bouncing dot, or drifting Volumio text after extended idle
-- **Splash screen:** "Volumio" with animated dots on startup
+- **Splash screen:** "Volumio" with animated dots until Volumio is ready
+- **Playback layouts:** three selectable styles (Classic, Minimal, Clock Focus)
 - **Zero MPD contact:** all data comes from Volumio's socket API — no playback interference
+
+### Screen Previews
+
+**Idle Screen**
+
+![Idle screen](docs/images/screen_idle.svg)
+
+**Playback — Classic Layout**
+
+![Classic layout](docs/images/screen_classic.svg)
+
+**Playback — Minimal Layout**
+
+![Minimal layout](docs/images/screen_minimal.svg)
+
+**Playback — Clock Focus Layout**
+
+![Clock Focus layout](docs/images/screen_clock_focus.svg)
 
 ---
 
@@ -267,9 +290,9 @@ sudo reboot
 
 1. Open Volumio's web UI
 2. Go to **Plugins → Installed Plugins**
-3. Find **OLED Display (SSD1309)** under Miscellanea
+3. Find **OLED Display (SSD1309)**
 4. Toggle the slider to **enable**
-5. Click the **gear icon** to configure I2C address, contrast, etc.
+5. Click **Settings** to configure I2C address, contrast, etc.
 
 > **Do NOT manually edit plugins.json.** Volumio discovers and registers
 > the plugin automatically when it finds the directory at boot.
@@ -293,27 +316,11 @@ sudo reboot
 | Screensaver | Bouncing Clock | Style: None / Bouncing Clock / Bouncing Dot / Drifting Volumio |
 | Screensaver Timeout | 300s | Activate screensaver after this many seconds past dim (0 = never) |
 | Volume Overlay | 2s | Duration of the full-screen volume display on change |
+| Playback Layout | Classic | Layout style: Classic / Minimal / Clock Focus |
 
 ---
 
 ## Troubleshooting
-
-### Recovery: corrupted plugins.json (from v1.0.0 instructions)
-
-If your Volumio web UI no longer loads after editing plugins.json:
-
-```bash
-ssh volumio@volumio.local
-
-# Option A: restore from backup (Volumio keeps one)
-sudo cp /data/configuration/plugins.json.bak /data/configuration/plugins.json
-sudo reboot
-
-# Option B: if no backup exists, regenerate it
-sudo systemctl stop volumio
-sudo rm /data/configuration/plugins.json
-sudo reboot
-```
 
 ### Plugin doesn't appear in the UI after reboot
 
