@@ -400,14 +400,3 @@ Volumio State Machine
 
 All data comes from Volumio's socket API.  No MPD contact.  No playback interference.
 
----
-
-## Optional Future Improvements
-
-- Album art: dither to 1-bit, show as thumbnail
-- Screensaver: bouncing logo or pixel-shift to prevent OLED burn-in
-- Larger clock font (8×16) for idle screen readability
-- GPIO buttons / rotary encoder for play/pause/skip/volume
-- Multi-page cycling: now playing → system stats → network info
-- 180° display rotation setting
-- DSD stream detection (DoP/native → "DSD64/128" badge)
