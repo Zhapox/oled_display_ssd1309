@@ -1,12 +1,15 @@
 'use strict';
 
 /**
- * Volumio OLED Display Plugin (v1.7.13)
+ * Volumio OLED Display Plugin (v1.7.14)
  *
- * Changes from v1.7.12:
- *   - install.sh sets I2C baudrate to 400kHz (fast mode) if not
- *     already configured.  Reduces framebuffer flush time from ~100ms
- *     to ~25ms, fixing uneven colon blink and position counter timing.
+ * Changes from v1.7.13:
+ *   - Colon blink uses frame counting instead of timestamps, eliminating
+ *     the periodic hiccup caused by drift accumulation.
+ *   - Refresh interval changed from freeform input to dropdown with
+ *     values that divide evenly into 1000ms (200/250/500/1000).
+ *   - Screensaver bounce randomised: random start position/direction
+ *     and ±10% speed variation on each edge collision.
  *
  * NOTE: Lifecycle methods (onVolumioStart, onStart, onStop, getUIConfig,
  * saveConfig) MUST return kew promises — Volumio 4's plugin manager
@@ -14,7 +17,7 @@
  * Internal methods (_startPlugin, _stopPlugin) use native Promises.
  */
 
-var fs = require('fs');   // Used only in getUIConfig fallback (readFileSync)
+var fs = require('fs');
 var path = require('path');
 var libQ = require('/volumio/node_modules/kew');  // Required: Volumio's plugin manager checks for kew promises
 
@@ -39,7 +42,6 @@ function ControllerOledDisplay(context) {
   this.renderer = null;
   this.socket = null;
   this.config = null;
-  this._configFilePath = null;  // Resolved path for config persistence
 
   this._renderTimerId = null;
   this._rendering = false;
@@ -183,7 +185,6 @@ ControllerOledDisplay.prototype._ensureConfig = function () {
       this.context, 'config.json'
     );
     this.config.loadFile(configFile);
-    this._configFilePath = configFile;
     this.logger.info('OLED: Config loaded from ' + configFile);
     return;
   } catch (err) {
@@ -196,7 +197,6 @@ ControllerOledDisplay.prototype._ensureConfig = function () {
   try {
     var fallbackPath = path.join(__dirname, 'config.json');
     this.config.loadFile(fallbackPath);
-    this._configFilePath = fallbackPath;
     this.logger.warn('OLED: Config loaded from fallback: ' + fallbackPath);
   } catch (err2) {
     this.logger.error('OLED: Fallback config failed: ' +
@@ -259,7 +259,19 @@ ControllerOledDisplay.prototype._populateUIConfig = function (uiconf) {
       label: pbLabels[pbLayout] || pbLayout
     };
     disp.content[1].value = this._getInt('scroll_speed', 3);
-    disp.content[2].value = this._getInt('render_interval_ms', 500);
+
+    var riVal = String(this._getInt('render_interval_ms', 500));
+    var riLabels = {
+      '200': '200ms (fast)',
+      '250': '250ms (smooth)',
+      '500': '500ms (default)',
+      '1000': '1000ms (power save)'
+    };
+    disp.content[2].value = {
+      value: riVal,
+      label: riLabels[riVal] || riVal + 'ms'
+    };
+
     disp.content[3].value = this._getInt('idle_dim_seconds', 120);
     disp.content[4].value = this._getInt('idle_contrast', 30);
     disp.content[5].value = this._getBool('clock_24h', true);
@@ -382,7 +394,7 @@ ControllerOledDisplay.prototype._persistToManagedConfig = function (data) {
     // Merge integer values from UI data
     var intKeys = [
       'i2c_bus_number', 'contrast', 'scroll_speed',
-      'render_interval_ms', 'idle_dim_seconds', 'idle_contrast',
+      'idle_dim_seconds', 'idle_contrast',
       'screensaver_seconds', 'volume_overlay_seconds'
     ];
     intKeys.forEach(function (key) {
@@ -403,6 +415,11 @@ ControllerOledDisplay.prototype._persistToManagedConfig = function (data) {
     if (data.i2c_address) {
       snapshot.i2c_address = (typeof data.i2c_address === 'object')
         ? data.i2c_address.value : data.i2c_address;
+    }
+    if (data.render_interval_ms) {
+      var riRaw = (typeof data.render_interval_ms === 'object')
+        ? data.render_interval_ms.value : data.render_interval_ms;
+      snapshot.render_interval_ms = parseInt(riRaw, 10);
     }
     if (data.screensaver_mode) {
       snapshot.screensaver_mode = (typeof data.screensaver_mode === 'object')

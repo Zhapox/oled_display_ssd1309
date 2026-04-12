@@ -146,15 +146,31 @@
         },
         {
           "id": "render_interval_ms",
-          "type": "number",
-          "element": "input",
-          "doc": "Display refresh interval in milliseconds. Lower = smoother but higher CPU usage (default: 500)",
-          "label": "Refresh Interval (ms)",
-          "value": 500,
-          "attributes": [
-            { "placeholder": "500" },
-            { "min": 200 },
-            { "max": 2000 }
+          "type": "text",
+          "element": "select",
+          "doc": "Display refresh interval. Lower = smoother scrolling but higher CPU usage (default: 500ms)",
+          "label": "Refresh Interval",
+          "value": {
+            "value": "500",
+            "label": "500ms (default)"
+          },
+          "options": [
+            {
+              "value": "200",
+              "label": "200ms (fast)"
+            },
+            {
+              "value": "250",
+              "label": "250ms (smooth)"
+            },
+            {
+              "value": "500",
+              "label": "500ms (default)"
+            },
+            {
+              "value": "1000",
+              "label": "1000ms (power save)"
+            }
           ]
         },
         {

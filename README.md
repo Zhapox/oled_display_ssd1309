@@ -1,4 +1,4 @@
-# OLED SSD1309 Display Plugin for Volumio – v1.7.13
+# OLED SSD1309 Display Plugin for Volumio – v1.7.14
 
 > **⚠️ Disclaimer**
 >
@@ -42,6 +42,16 @@ Displays playback information on a 128×64 SSD1309 I2C OLED connected to a Raspb
 ---
 
 ## Changelog
+
+### v1.7.14
+
+**Improvements:**
+
+1. **Colon blink uses frame counting.**  Replaced the timestamp-based toggle with a simple frame counter (`_colonFrameCount`), eliminating the periodic hiccup that occurred every ~5th blink due to accumulated setTimeout drift.  The toggle interval is calculated once at start: `Math.round(1000 / renderInterval)` frames.
+
+2. **Refresh interval is now a dropdown.**  Changed from a freeform number input (200–2000ms) to four preset options: 200ms (fast), 250ms (smooth), 500ms (default), 1000ms (power save).  All four divide evenly into 1000ms, guaranteeing a perfectly even colon blink regardless of the selected interval.
+
+3. **Screensaver bounce randomised.**  Starting position and direction are now randomised on each activation.  Each edge collision adds ±10% speed variation via `_nudgeBounce()`, so the path gradually evolves and never traces the same route twice.  Speed is clamped to 0.5–1.8 to prevent stalling or excessive speed.
 
 ### v1.7.13
 
@@ -269,11 +279,11 @@ ssh volumio@volumio.local
 mkdir -p /data/plugins/user_interface/oled_display_ssd1309
 
 # 3. Transfer the tarball (run this on your PC, not the Pi)
-scp oled_display_ssd1309-v1.7.13.tar volumio@volumio.local:/tmp/
+scp oled_display_ssd1309-v1.7.14.tar volumio@volumio.local:/tmp/
 
 # 4. Extract on the Pi
 cd /data/plugins/user_interface
-tar xf /tmp/oled_display_ssd1309-v1.7.13.tar
+tar xf /tmp/oled_display_ssd1309-v1.7.14.tar
 # If it extracts into a subdirectory:
 # mv oled_display_ssd1309/* /data/plugins/user_interface/oled_display_ssd1309/
 
@@ -308,7 +318,7 @@ sudo reboot
 | Contrast | 255 | Display brightness (0–255) |
 | Rotate 180° | off | Flip display for upside-down mounting |
 | Scroll Speed | 3 | Text scroll speed in px/frame (1–10) |
-| Refresh Interval | 500ms | Display update interval (200–2000ms) |
+| Refresh Interval | 500ms | Display update interval: 200ms (fast) / 250ms (smooth) / 500ms (default) / 1000ms (power save) |
 | Idle Dim Timeout | 120s | Dim after N seconds idle (0 = never) |
 | Dimmed Contrast | 30 | Contrast when dimmed (0–255) |
 | 24-Hour Clock | on | Use 24h or 12h AM/PM format |
