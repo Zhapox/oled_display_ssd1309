@@ -12,5 +12,6 @@
   "screensaver_mode": { "type": "string", "value": "bouncing_clock" },
   "screensaver_seconds": { "type": "number", "value": 300 },
   "volume_overlay_seconds": { "type": "number", "value": 2 },
-  "playback_layout": { "type": "string", "value": "classic" }
+  "playback_layout": { "type": "string", "value": "classic" },
+  "date_format": { "type": "string", "value": "day_month_name" }
 }

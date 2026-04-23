@@ -1,4 +1,4 @@
-# OLED SSD1309 Display Plugin for Volumio – v1.7.14
+# OLED SSD1309 Display Plugin for Volumio – v1.7.16
 
 > **⚠️ Disclaimer**
 >
@@ -42,6 +42,22 @@ Displays playback information on a 128×64 SSD1309 I2C OLED connected to a Raspb
 ---
 
 ## Changelog
+
+### v1.7.16
+
+**Improvement:**
+
+1. **Configurable date format.**  New dropdown in the Display Options section with four formats: "Day + Month name" (Thu 02 Apr 2026, uses localized names), "DD.MM.YYYY" (02.04.2026), "MM/DD/YYYY" (04/02/2026), and "YYYY-MM-DD" (2026-04-02).  The dropdown labels are translated in all 7 languages.
+
+### v1.7.15
+
+**New features:**
+
+1. **Extended character set.**  Added Unicode support for Central European languages.  Lowercase accented characters with marks above (ć, ń, ś, ź, č, ř, š, ž, ä, ö, ü, é, ñ, etc.) display correctly using accent overlays.  Hand-designed glyphs for special shapes (ł, ż, ď, ť, ı).  Uppercase accented characters and characters with marks below the baseline (ą, ę) are mapped to their unaccented base letters — a pragmatic choice since the 5×7 pixel font has no room for accents above uppercase or tails below the baseline.
+
+2. **Localized date display.**  The idle screen date now shows day and month names in the user's language (e.g. "Do 02 Apr 2026" for German, "Czw 02 Kwi 2026" for Polish).  The date format order follows the language convention.  Language data is loaded from i18n string files (EN, DE, FR, PL, ES, IT, NL) based on Volumio's GUI language setting.
+
+3. **Multilingual section labels.**  The plugin configuration page section headers (Hardware / Display) are translated via Volumio's i18n system.  Content labels and descriptions remain in English for compatibility.
 
 ### v1.7.14
 
@@ -279,11 +295,11 @@ ssh volumio@volumio.local
 mkdir -p /data/plugins/user_interface/oled_display_ssd1309
 
 # 3. Transfer the tarball (run this on your PC, not the Pi)
-scp oled_display_ssd1309-v1.7.14.tar volumio@volumio.local:/tmp/
+scp oled_display_ssd1309-v1.7.16.tar volumio@volumio.local:/tmp/
 
 # 4. Extract on the Pi
 cd /data/plugins/user_interface
-tar xf /tmp/oled_display_ssd1309-v1.7.14.tar
+tar xf /tmp/oled_display_ssd1309-v1.7.16.tar
 # If it extracts into a subdirectory:
 # mv oled_display_ssd1309/* /data/plugins/user_interface/oled_display_ssd1309/
 
@@ -323,6 +339,7 @@ sudo reboot
 | Dimmed Contrast | 30 | Contrast when dimmed (0–255) |
 | 24-Hour Clock | on | Use 24h or 12h AM/PM format |
 | Colon Blink | on | Blink colon on idle screen clock |
+| Date Format | Day + Month name | Date display: Day + Month name / DD.MM.YYYY / MM/DD/YYYY / YYYY-MM-DD |
 | Screensaver | Bouncing Clock | Style: None / Bouncing Clock / Bouncing Dot / Drifting Volumio |
 | Screensaver Timeout | 300s | Activate screensaver after this many seconds past dim (0 = never) |
 | Volume Overlay | 2s | Duration of the full-screen volume display on change |

@@ -1,12 +1,12 @@
 {
   "page": {
-    "label": "OLED Display Settings"
+    "label": "TRANSLATE.PLUGIN_CONFIGURATION"
   },
   "sections": [
     {
       "id": "hardware",
       "element": "section",
-      "label": "Hardware Configuration",
+      "label": "TRANSLATE.HARDWARE.TITLE",
       "icon": "fa-microchip",
       "onSave": {
         "type": "controller",
@@ -14,7 +14,7 @@
         "method": "saveConfig"
       },
       "saveButton": {
-        "label": "Save",
+        "label": "TRANSLATE.HARDWARE.SAVE",
         "data": [
           "i2c_bus_number",
           "i2c_address",
@@ -27,8 +27,8 @@
           "id": "i2c_bus_number",
           "type": "number",
           "element": "input",
-          "doc": "I2C bus number — usually 1 on Raspberry Pi (default: 1)",
-          "label": "I2C Bus Number",
+          "doc": "TRANSLATE.HARDWARE.I2C_BUS_NUMBER_DOC",
+          "label": "TRANSLATE.HARDWARE.I2C_BUS_NUMBER",
           "value": 1,
           "attributes": [
             { "placeholder": "1" },
@@ -40,8 +40,8 @@
           "id": "i2c_address",
           "type": "text",
           "element": "select",
-          "doc": "I2C address of the OLED display (default: 0x3C)",
-          "label": "I2C Address",
+          "doc": "TRANSLATE.HARDWARE.I2C_ADDRESS_DOC",
+          "label": "TRANSLATE.HARDWARE.I2C_ADDRESS",
           "value": {
             "value": "0x3C",
             "label": "0x3C (default)"
@@ -61,8 +61,8 @@
           "id": "contrast",
           "type": "number",
           "element": "input",
-          "doc": "Display contrast / brightness, 0 (off) to 255 (max) (default: 255)",
-          "label": "Contrast",
+          "doc": "TRANSLATE.HARDWARE.CONTRAST_DOC",
+          "label": "TRANSLATE.HARDWARE.CONTRAST",
           "value": 255,
           "attributes": [
             { "placeholder": "255" },
@@ -74,8 +74,8 @@
           "id": "rotate_180",
           "type": "switch",
           "element": "switch",
-          "doc": "Rotate display 180 degrees for upside-down mounted displays (default: off)",
-          "label": "Rotate 180°",
+          "doc": "TRANSLATE.HARDWARE.ROTATE_180_DOC",
+          "label": "TRANSLATE.HARDWARE.ROTATE_180",
           "value": false
         }
       ]
@@ -83,7 +83,7 @@
     {
       "id": "display",
       "element": "section",
-      "label": "Display Options",
+      "label": "TRANSLATE.DISPLAY.TITLE",
       "icon": "fa-television",
       "onSave": {
         "type": "controller",
@@ -91,7 +91,7 @@
         "method": "saveConfig"
       },
       "saveButton": {
-        "label": "Save",
+        "label": "TRANSLATE.DISPLAY.SAVE",
         "data": [
           "playback_layout",
           "scroll_speed",
@@ -100,6 +100,7 @@
           "idle_contrast",
           "clock_24h",
           "colon_blink",
+          "date_format",
           "screensaver_mode",
           "screensaver_seconds",
           "volume_overlay_seconds"
@@ -110,24 +111,24 @@
           "id": "playback_layout",
           "type": "text",
           "element": "select",
-          "doc": "Playback screen layout style (default: Classic)",
-          "label": "Playback Layout",
+          "doc": "TRANSLATE.DISPLAY.PLAYBACK_LAYOUT_DOC",
+          "label": "TRANSLATE.DISPLAY.PLAYBACK_LAYOUT",
           "value": {
             "value": "classic",
-            "label": "Classic"
+            "label": "TRANSLATE.DISPLAY.LAYOUT_CLASSIC"
           },
           "options": [
             {
               "value": "classic",
-              "label": "Classic"
+              "label": "TRANSLATE.DISPLAY.LAYOUT_CLASSIC"
             },
             {
               "value": "minimal",
-              "label": "Minimal"
+              "label": "TRANSLATE.DISPLAY.LAYOUT_MINIMAL"
             },
             {
               "value": "clock_focus",
-              "label": "Clock Focus"
+              "label": "TRANSLATE.DISPLAY.LAYOUT_CLOCK_FOCUS"
             }
           ]
         },
@@ -135,8 +136,8 @@
           "id": "scroll_speed",
           "type": "number",
           "element": "input",
-          "doc": "Text scroll speed in pixels per frame, 1 (slow) to 10 (fast) (default: 3)",
-          "label": "Scroll Speed",
+          "doc": "TRANSLATE.DISPLAY.SCROLL_SPEED_DOC",
+          "label": "TRANSLATE.DISPLAY.SCROLL_SPEED",
           "value": 3,
           "attributes": [
             { "placeholder": "3" },
@@ -148,28 +149,28 @@
           "id": "render_interval_ms",
           "type": "text",
           "element": "select",
-          "doc": "Display refresh interval. Lower = smoother scrolling but higher CPU usage (default: 500ms)",
-          "label": "Refresh Interval",
+          "doc": "TRANSLATE.DISPLAY.REFRESH_INTERVAL_DOC",
+          "label": "TRANSLATE.DISPLAY.REFRESH_INTERVAL",
           "value": {
             "value": "500",
-            "label": "500ms (default)"
+            "label": "TRANSLATE.DISPLAY.REFRESH_500"
           },
           "options": [
             {
               "value": "200",
-              "label": "200ms (fast)"
+              "label": "TRANSLATE.DISPLAY.REFRESH_200"
             },
             {
               "value": "250",
-              "label": "250ms (smooth)"
+              "label": "TRANSLATE.DISPLAY.REFRESH_250"
             },
             {
               "value": "500",
-              "label": "500ms (default)"
+              "label": "TRANSLATE.DISPLAY.REFRESH_500"
             },
             {
               "value": "1000",
-              "label": "1000ms (power save)"
+              "label": "TRANSLATE.DISPLAY.REFRESH_1000"
             }
           ]
         },
@@ -177,8 +178,8 @@
           "id": "idle_dim_seconds",
           "type": "number",
           "element": "input",
-          "doc": "Dim display after this many seconds of idle. Set to 0 to never dim (default: 120)",
-          "label": "Idle Dim Timeout (s)",
+          "doc": "TRANSLATE.DISPLAY.IDLE_DIM_SECONDS_DOC",
+          "label": "TRANSLATE.DISPLAY.IDLE_DIM_SECONDS",
           "value": 120,
           "attributes": [
             { "placeholder": "120" },
@@ -190,8 +191,8 @@
           "id": "idle_contrast",
           "type": "number",
           "element": "input",
-          "doc": "Contrast level when dimmed, 0 (off) to 255 (max) (default: 30)",
-          "label": "Dimmed Contrast",
+          "doc": "TRANSLATE.DISPLAY.IDLE_CONTRAST_DOC",
+          "label": "TRANSLATE.DISPLAY.IDLE_CONTRAST",
           "value": 30,
           "attributes": [
             { "placeholder": "30" },
@@ -203,44 +204,73 @@
           "id": "clock_24h",
           "type": "switch",
           "element": "switch",
-          "doc": "Use 24-hour clock format. When off, uses 12-hour with AM/PM (default: on)",
-          "label": "24-Hour Clock",
+          "doc": "TRANSLATE.DISPLAY.CLOCK_24H_DOC",
+          "label": "TRANSLATE.DISPLAY.CLOCK_24H",
           "value": true
         },
         {
           "id": "colon_blink",
           "type": "switch",
           "element": "switch",
-          "doc": "Blink the colon on the idle screen clock, 1 second on / 1 second off (default: on)",
-          "label": "Colon Blink",
+          "doc": "TRANSLATE.DISPLAY.COLON_BLINK_DOC",
+          "label": "TRANSLATE.DISPLAY.COLON_BLINK",
           "value": true
+        },
+        {
+          "id": "date_format",
+          "type": "text",
+          "element": "select",
+          "doc": "TRANSLATE.DISPLAY.DATE_FORMAT_DOC",
+          "label": "TRANSLATE.DISPLAY.DATE_FORMAT",
+          "value": {
+            "value": "day_month_name",
+            "label": "TRANSLATE.DISPLAY.DATE_DAY_MONTH_NAME"
+          },
+          "options": [
+            {
+              "value": "day_month_name",
+              "label": "TRANSLATE.DISPLAY.DATE_DAY_MONTH_NAME"
+            },
+            {
+              "value": "dd_mm_yyyy",
+              "label": "TRANSLATE.DISPLAY.DATE_DD_MM_YYYY"
+            },
+            {
+              "value": "mm_dd_yyyy",
+              "label": "TRANSLATE.DISPLAY.DATE_MM_DD_YYYY"
+            },
+            {
+              "value": "yyyy_mm_dd",
+              "label": "TRANSLATE.DISPLAY.DATE_YYYY_MM_DD"
+            }
+          ]
         },
         {
           "id": "screensaver_mode",
           "type": "text",
           "element": "select",
-          "doc": "Screensaver style activated after idle + dim timeout (default: Bouncing Clock)",
-          "label": "Screensaver",
+          "doc": "TRANSLATE.DISPLAY.SCREENSAVER_MODE_DOC",
+          "label": "TRANSLATE.DISPLAY.SCREENSAVER_MODE",
           "value": {
             "value": "bouncing_clock",
-            "label": "Bouncing Clock"
+            "label": "TRANSLATE.DISPLAY.SS_BOUNCING_CLOCK"
           },
           "options": [
             {
               "value": "none",
-              "label": "None (stay on idle screen)"
+              "label": "TRANSLATE.DISPLAY.SS_NONE"
             },
             {
               "value": "bouncing_clock",
-              "label": "Bouncing Clock"
+              "label": "TRANSLATE.DISPLAY.SS_BOUNCING_CLOCK"
             },
             {
               "value": "bouncing_dot",
-              "label": "Bouncing Dot"
+              "label": "TRANSLATE.DISPLAY.SS_BOUNCING_DOT"
             },
             {
               "value": "drifting_text",
-              "label": "Drifting Volumio"
+              "label": "TRANSLATE.DISPLAY.SS_DRIFTING_TEXT"
             }
           ]
         },
@@ -248,8 +278,8 @@
           "id": "screensaver_seconds",
           "type": "number",
           "element": "input",
-          "doc": "Activate screensaver after this many seconds past the dim timeout. Set to 0 to never activate (default: 300)",
-          "label": "Screensaver Timeout (s)",
+          "doc": "TRANSLATE.DISPLAY.SCREENSAVER_SECONDS_DOC",
+          "label": "TRANSLATE.DISPLAY.SCREENSAVER_SECONDS",
           "value": 300,
           "attributes": [
             { "placeholder": "300" },
@@ -261,8 +291,8 @@
           "id": "volume_overlay_seconds",
           "type": "number",
           "element": "input",
-          "doc": "How long the full-screen volume overlay displays when volume changes (default: 2)",
-          "label": "Volume Overlay Duration (s)",
+          "doc": "TRANSLATE.DISPLAY.VOLUME_OVERLAY_SECONDS_DOC",
+          "label": "TRANSLATE.DISPLAY.VOLUME_OVERLAY_SECONDS",
           "value": 2,
           "attributes": [
             { "placeholder": "2" },

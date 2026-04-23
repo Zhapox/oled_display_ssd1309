@@ -1,15 +1,13 @@
 'use strict';
 
 /**
- * Volumio OLED Display Plugin (v1.7.14)
+ * Volumio OLED Display Plugin (v1.7.16)
  *
- * Changes from v1.7.13:
- *   - Colon blink uses frame counting instead of timestamps, eliminating
- *     the periodic hiccup caused by drift accumulation.
- *   - Refresh interval changed from freeform input to dropdown with
- *     values that divide evenly into 1000ms (200/250/500/1000).
- *   - Screensaver bounce randomised: random start position/direction
- *     and ±10% speed variation on each edge collision.
+ * Changes from v1.7.15:
+ *   - Configurable date format dropdown: Day + Month name, DD.MM.YYYY,
+ *     MM/DD/YYYY, YYYY-MM-DD.  Translated in all 7 languages.
+ *   - Fixed i18nJson parameter order (language file first, default second).
+ *   - UIConfig.json uses TRANSLATE. prefix per Volumio's documented pattern.
  *
  * NOTE: Lifecycle methods (onVolumioStart, onStart, onStop, getUIConfig,
  * saveConfig) MUST return kew promises — Volumio 4's plugin manager
@@ -36,7 +34,6 @@ function ControllerOledDisplay(context) {
   this.context = context;
   this.commandRouter = this.context.coreCommand;
   this.logger = this.context.logger;
-  this.configManager = this.context.configManager;
 
   this.display = null;
   this.renderer = null;
@@ -60,6 +57,7 @@ function ControllerOledDisplay(context) {
   this._cachedScreensaverMs = 300000;
   this._cachedVolumeOverlayMs = 2000;
   this._cachedPlaybackLayout = 'classic';
+  this._cachedDateFormat = 'day_month_name';
 
   // Splash screen: stays active until first pushState arrives (or safety timeout)
   this._splashActive = true;
@@ -171,6 +169,7 @@ ControllerOledDisplay.prototype._cacheConfig = function () {
   this._cachedScreensaverMs = this._getInt('screensaver_seconds', 300) * 1000;
   this._cachedVolumeOverlayMs = this._getInt('volume_overlay_seconds', 2) * 1000;
   this._cachedPlaybackLayout = this._getStr('playback_layout', 'classic');
+  this._cachedDateFormat = this._getStr('date_format', 'day_month_name');
 };
 
 ControllerOledDisplay.prototype._ensureConfig = function () {
@@ -204,6 +203,46 @@ ControllerOledDisplay.prototype._ensureConfig = function () {
   }
 };
 
+/**
+ * Load localized day/month names from the i18n strings file
+ * matching Volumio's current language setting.  Falls back to English.
+ */
+ControllerOledDisplay.prototype._loadLanguageData = function () {
+  var dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  var monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+  try {
+    var langCode = this.commandRouter.sharedVars.get('language_code') || 'en';
+    var langFile = path.join(__dirname, 'i18n', 'strings_' + langCode + '.json');
+
+    if (!fs.existsSync(langFile)) {
+      langFile = path.join(__dirname, 'i18n', 'strings_en.json');
+    }
+
+    var strings = JSON.parse(fs.readFileSync(langFile, 'utf8'));
+    var date = strings.DATE || {};
+
+    var dayKeys = ['DAY_SUN', 'DAY_MON', 'DAY_TUE', 'DAY_WED', 'DAY_THU', 'DAY_FRI', 'DAY_SAT'];
+    var monKeys = ['MON_JAN', 'MON_FEB', 'MON_MAR', 'MON_APR', 'MON_MAY', 'MON_JUN',
+                   'MON_JUL', 'MON_AUG', 'MON_SEP', 'MON_OCT', 'MON_NOV', 'MON_DEC'];
+
+    for (var d = 0; d < 7; d++) {
+      if (date[dayKeys[d]]) dayNames[d] = date[dayKeys[d]];
+    }
+    for (var m = 0; m < 12; m++) {
+      if (date[monKeys[m]]) monthNames[m] = date[monKeys[m]];
+    }
+
+    this.logger.info('OLED: Language loaded: ' + langCode);
+  } catch (err) {
+    this.logger.warn('OLED: Language load failed, using English: ' +
+      ((err && err.message) ? err.message : err));
+  }
+
+  return { dayNames: dayNames, monthNames: monthNames };
+};
+
 ControllerOledDisplay.prototype.getUIConfig = function () {
   var defer = libQ.defer();
   var self = this;
@@ -215,8 +254,9 @@ ControllerOledDisplay.prototype.getUIConfig = function () {
   var defaultFile = path.join(__dirname, 'i18n', 'strings_en.json');
   var uiconfFile = path.join(__dirname, 'UIConfig.json');
 
-  // i18nJson returns a kew promise — use .fail() not .catch()
-  self.commandRouter.i18nJson(defaultFile, langFile, uiconfFile)
+  // i18nJson(languageDict, defaultDict, uiConfigFile)
+  // Language-specific file first, English fallback second
+  self.commandRouter.i18nJson(langFile, defaultFile, uiconfFile)
     .then(function (uiconf) {
       self._populateUIConfig(uiconf);
       defer.resolve(uiconf);
@@ -249,50 +289,44 @@ ControllerOledDisplay.prototype._populateUIConfig = function (uiconf) {
     var disp = uiconf.sections[1];
 
     var pbLayout = this._getStr('playback_layout', 'classic');
-    var pbLabels = {
-      'classic': 'Classic',
-      'minimal': 'Minimal',
-      'clock_focus': 'Clock Focus'
-    };
-    disp.content[0].value = {
-      value: pbLayout,
-      label: pbLabels[pbLayout] || pbLayout
-    };
+    disp.content[0].value = this._findSelectValue(disp.content[0], pbLayout);
+
     disp.content[1].value = this._getInt('scroll_speed', 3);
 
     var riVal = String(this._getInt('render_interval_ms', 500));
-    var riLabels = {
-      '200': '200ms (fast)',
-      '250': '250ms (smooth)',
-      '500': '500ms (default)',
-      '1000': '1000ms (power save)'
-    };
-    disp.content[2].value = {
-      value: riVal,
-      label: riLabels[riVal] || riVal + 'ms'
-    };
+    disp.content[2].value = this._findSelectValue(disp.content[2], riVal);
 
     disp.content[3].value = this._getInt('idle_dim_seconds', 120);
     disp.content[4].value = this._getInt('idle_contrast', 30);
     disp.content[5].value = this._getBool('clock_24h', true);
     disp.content[6].value = this._getBool('colon_blink', true);
 
+    var dateFormat = this._getStr('date_format', 'day_month_name');
+    disp.content[7].value = this._findSelectValue(disp.content[7], dateFormat);
+
     var ssMode = this._getStr('screensaver_mode', 'bouncing_clock');
-    var ssLabels = {
-      'none': 'None (stay on idle screen)',
-      'bouncing_clock': 'Bouncing Clock',
-      'bouncing_dot': 'Bouncing Dot',
-      'drifting_text': 'Drifting Volumio'
-    };
-    disp.content[7].value = {
-      value: ssMode,
-      label: ssLabels[ssMode] || ssMode
-    };
-    disp.content[8].value = this._getInt('screensaver_seconds', 300);
-    disp.content[9].value = this._getInt('volume_overlay_seconds', 2);
+    disp.content[8].value = this._findSelectValue(disp.content[8], ssMode);
+
+    disp.content[9].value = this._getInt('screensaver_seconds', 300);
+    disp.content[10].value = this._getInt('volume_overlay_seconds', 2);
   } catch (err) {
     this.logger.error('OLED: UI config populate error: ' + err.message);
   }
+};
+
+/**
+ * Find the matching option label for a select element's current value.
+ * Uses the already-translated labels from i18nJson.
+ */
+ControllerOledDisplay.prototype._findSelectValue = function (element, value) {
+  if (element && element.options) {
+    for (var i = 0; i < element.options.length; i++) {
+      if (element.options[i].value === value) {
+        return { value: value, label: element.options[i].label };
+      }
+    }
+  }
+  return { value: value, label: value };
 };
 
 ControllerOledDisplay.prototype.saveConfig = function (data) {
@@ -364,7 +398,8 @@ ControllerOledDisplay.prototype._persistToManagedConfig = function (data) {
       'screensaver_mode': 'string',
       'screensaver_seconds': 'number',
       'volume_overlay_seconds': 'number',
-      'playback_layout': 'string'
+      'playback_layout': 'string',
+      'date_format': 'string'
     };
 
     // Start with existing config from disk (preserves keys not in this save)
@@ -428,6 +463,10 @@ ControllerOledDisplay.prototype._persistToManagedConfig = function (data) {
     if (data.playback_layout) {
       snapshot.playback_layout = (typeof data.playback_layout === 'object')
         ? data.playback_layout.value : data.playback_layout;
+    }
+    if (data.date_format) {
+      snapshot.date_format = (typeof data.date_format === 'object')
+        ? data.date_format.value : data.date_format;
     }
 
     // Re-wrap all values in v-conf format: {"type":"number","value":N}
@@ -503,12 +542,16 @@ ControllerOledDisplay.prototype._startPlugin = function () {
       throw i2cErr;
     }
 
-    // Renderer
+    // Renderer — load localized date names from i18n
+    var langData = self._loadLanguageData();
     self.renderer = new Renderer(self.display, {
       scrollSpeed: scrollSpeed,
       clock24h: clock24h,
       colonBlink: colonBlink,
-      renderInterval: self._renderInterval
+      renderInterval: self._renderInterval,
+      dayNames: langData.dayNames,
+      monthNames: langData.monthNames,
+      dateFormat: self._cachedDateFormat
     });
 
     // Socket
