@@ -1,4 +1,4 @@
-# OLED SSD1309 Display Plugin for Volumio – v1.7.17
+# OLED SSD1309 Display Plugin for Volumio – v1.7.20
 
 > **⚠️ Disclaimer**
 >
@@ -42,6 +42,22 @@ Displays playback information on a 128×64 SSD1309 I2C OLED connected to a Raspb
 ---
 
 ## Changelog
+
+### v1.7.20
+
+**Bug fix (corrects v1.7.19):**
+
+1. **Display now reliably powers off on system reboot and shutdown.** v1.7.19 attempted to fix this by adding `onReboot` and `onShutdown` lifecycle methods, but those names don't match what Volumio actually looks up. The Volumio log lines `PLUGIN onReboot : <name>` and `PLUGIN onShutdown : <name>` are human-readable shorthand — the real method names checked on the plugin prototype are `onVolumioReboot` and `onVolumioShutdown` (see `volumio3-backend/app/pluginmanager.js` lines 636 and 682). v1.7.20 uses the correct names. The shared `_systemPowerOff(reason)` helper clears the framebuffer, flushes, and powers off the display synchronously inside the hook, before Volumio invokes `systemctl reboot`/`poweroff`. The previous SIGTERM and socket-event handlers are retained as defensive backups.
+
+### v1.7.19
+
+Initial attempt at the reboot/shutdown power-off fix. Used the wrong method names (`onReboot`/`onShutdown`) — Volumio silently ignored them. **Superseded by v1.7.20.**
+
+### v1.7.18
+
+**Bug fix:**
+
+1. **Ghost state detection no longer misclassifies music-service plugins during their loading window.** Music-source plugins (Tidal, Spotify, internet radio plugins like 80s80s/90s90s, etc.) set the `service` field immediately when playback starts but only populate `title`, `artist`, and `duration` after their metadata API call returns. The previous ghost-state check matched on `status=play` + empty metadata + `duration=0` alone, which was the same shape these plugins briefly produce during loading — causing the OLED to fall back to the idle screen instead of showing the expected playback screen. The check now also requires `service` to be empty, so only genuine ghost states (left behind by AirPlay or Bluetooth disconnect, where no service field is set) are caught.
 
 ### v1.7.17
 
@@ -301,11 +317,11 @@ ssh volumio@volumio.local
 mkdir -p /data/plugins/user_interface/oled_display_ssd1309
 
 # 3. Transfer the tarball (run this on your PC, not the Pi)
-scp oled_display_ssd1309-v1.7.17.tar volumio@volumio.local:/tmp/
+scp oled_display_ssd1309-v1.7.20.tar volumio@volumio.local:/tmp/
 
 # 4. Extract on the Pi
 cd /data/plugins/user_interface
-tar xf /tmp/oled_display_ssd1309-v1.7.17.tar
+tar xf /tmp/oled_display_ssd1309-v1.7.20.tar
 # If it extracts into a subdirectory:
 # mv oled_display_ssd1309/* /data/plugins/user_interface/oled_display_ssd1309/
 
