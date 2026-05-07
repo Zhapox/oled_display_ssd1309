@@ -1,4 +1,4 @@
-# OLED SSD1309 Display Plugin for Volumio – v1.7.20
+# OLED SSD1309 Display Plugin for Volumio – v1.7.21
 
 > **⚠️ Disclaimer**
 >
@@ -42,6 +42,12 @@ Displays playback information on a 128×64 SSD1309 I2C OLED connected to a Raspb
 ---
 
 ## Changelog
+
+### v1.7.21
+
+**Documentation only:**
+
+1. **Install instructions updated** to recommend `volumio plugin install`.  This is Volumio's own plugin manager command — invoked from inside the extracted source folder, it copies files into place, runs `install.sh`, and registers the plugin.  No manual folder creation and no manual file copying.  A reboot is still required after install for the I2C baudrate change in `/boot/userconfig.txt` to take effect, but the reason is now documented honestly.  The previous manual-extraction method is kept as a fallback section for older Volumio versions where the CLI may not work.
 
 ### v1.7.20
 
@@ -306,33 +312,28 @@ Initial attempt at the reboot/shutdown power-off fix. Used the wrong method name
   - GND → GND (pin 9)
 - SSH enabled in Volumio (Settings → Network → SSH)
 
-### Step-by-step
+### Recommended: install via Volumio's plugin manager
 
 ```bash
-# 1. SSH into your Volumio
+# 1. Transfer the tarball to Volumio (run on your PC, not the Pi)
+scp oled_display_ssd1309-v1.7.21.tar volumio@volumio.local:~/
+
+# 2. SSH into Volumio
 ssh volumio@volumio.local
 # password: volumio
 
-# 2. Create the plugin directory
-mkdir -p /data/plugins/user_interface/oled_display_ssd1309
+# 3. Extract the source folder (anywhere works — home directory is fine)
+tar xf oled_display_ssd1309-v1.7.21.tar
+cd oled_display_ssd1309
 
-# 3. Transfer the tarball (run this on your PC, not the Pi)
-scp oled_display_ssd1309-v1.7.20.tar volumio@volumio.local:/tmp/
+# 4. Install via Volumio's plugin manager
+volumio plugin install
 
-# 4. Extract on the Pi
-cd /data/plugins/user_interface
-tar xf /tmp/oled_display_ssd1309-v1.7.20.tar
-# If it extracts into a subdirectory:
-# mv oled_display_ssd1309/* /data/plugins/user_interface/oled_display_ssd1309/
-
-# 5. Run the installer
-cd /data/plugins/user_interface/oled_display_ssd1309
-chmod +x install.sh diagnose.sh uninstall.sh
-bash install.sh
-
-# 6. Reboot (required for I2C and plugin registration)
+# 5. Reboot for the I2C baudrate change to take effect
 sudo reboot
 ```
+
+The `volumio plugin install` command reads the plugin's metadata, copies files into `/data/plugins/user_interface/oled_display_ssd1309/`, runs `install.sh` in the destination, and registers the plugin with Volumio.  The reboot at step 5 is needed because `install.sh` adds `dtparam=i2c_arm_baudrate=400000` to `/boot/userconfig.txt`, and that kernel parameter is only applied at boot.  Without it, the I2C bus runs at the default 100kHz and the display refresh visibly drags.
 
 ### After reboot
 
@@ -342,8 +343,35 @@ sudo reboot
 4. Toggle the slider to **enable**
 5. Click **Settings** to configure I2C address, contrast, etc.
 
-> **Do NOT manually edit plugins.json.** Volumio discovers and registers
-> the plugin automatically when it finds the directory at boot.
+### Alternative: manual install
+
+Use this method only if `volumio plugin install` is unavailable or fails on your Volumio version.
+
+```bash
+# 1. SSH into Volumio
+ssh volumio@volumio.local
+
+# 2. Create the destination folder
+mkdir -p /data/plugins/user_interface/oled_display_ssd1309
+
+# 3. Transfer the tarball (run on your PC, not the Pi)
+scp oled_display_ssd1309-v1.7.21.tar volumio@volumio.local:/tmp/
+
+# 4. Extract directly into the plugins directory
+cd /data/plugins/user_interface
+tar xf /tmp/oled_display_ssd1309-v1.7.21.tar
+
+# 5. Run the installer manually
+cd /data/plugins/user_interface/oled_display_ssd1309
+chmod +x install.sh diagnose.sh uninstall.sh
+bash install.sh
+
+# 6. Reboot so Volumio discovers the new plugin folder, and so the
+#    I2C baudrate change takes effect
+sudo reboot
+```
+
+> When using the manual method, do NOT edit `plugins.json` by hand — Volumio discovers the plugin automatically on boot when it finds the directory.
 
 ---
 
