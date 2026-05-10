@@ -1,4 +1,4 @@
-# OLED SSD1309 Display Plugin for Volumio – v1.7.21
+# OLED SSD1309 Display Plugin for Volumio – v1.7.22
 
 > **⚠️ Disclaimer**
 >
@@ -42,6 +42,12 @@ Displays playback information on a 128×64 SSD1309 I2C OLED connected to a Raspb
 ---
 
 ## Changelog
+
+### v1.7.22
+
+**Documentation only:**
+
+1. **Install instructions clarify the store-vs-source distinction and add `build-essential` as a prerequisite for source installs.** When installing from source via `volumio plugin install`, the Volumio plugin manager runs `npm install` before `install.sh`, which means the build toolchain has to already be present on the Pi.  On a fresh Volumio image (or right after a factory reset), `build-essential` is not installed by default and `i2c-bus`'s native compile step fails with `not found: make`.  The README now lists `build-essential` as a one-time prereq for source installs and explains that store users (once the plugin is published) don't need it because the store delivers a pre-built archive with the native binary already compiled.  The "Alternative: manual install" section also notes that `install.sh` self-installs `build-essential` before `npm install`, so that path doesn't need the prereq either.
 
 ### v1.7.21
 
@@ -302,6 +308,8 @@ Initial attempt at the reboot/shutdown power-off fix. Used the wrong method name
 
 ## Installation Guide
 
+> **For end users:** once this plugin is published to Volumio's plugin store, the easiest way to install it is **Settings → Plugins → Search Plugins** in the Volumio web UI.  In that case Volumio downloads a pre-built archive that already includes the compiled native I2C driver, so none of the steps below are needed.  The instructions in this section are for installing **from source** — useful for development, beta testing, or running newer versions before they reach the store.
+
 ### Prerequisites
 
 - Raspberry Pi 4 running Volumio 3 (latest)
@@ -311,19 +319,26 @@ Initial attempt at the reboot/shutdown power-off fix. Used the wrong method name
   - VCC → 3.3V (pin 1)
   - GND → GND (pin 9)
 - SSH enabled in Volumio (Settings → Network → SSH)
+- **Build tools** installed on the Pi (one-time, source-install only):
+
+  ```bash
+  sudo apt-get update && sudo apt-get install -y build-essential
+  ```
+
+  This is required because the `i2c-bus` Node module is a native addon and must be compiled on the device when installing from source.  `volumio plugin install` runs `npm install` *before* it runs `install.sh`, so the build tools have to already be present.  This step is **only needed when installing from source** — store users get a pre-built archive and don't need it.  It's also a one-time setup; once installed, `build-essential` stays until you factory-reset Volumio.
 
 ### Recommended: install via Volumio's plugin manager
 
 ```bash
 # 1. Transfer the tarball to Volumio (run on your PC, not the Pi)
-scp oled_display_ssd1309-v1.7.21.tar volumio@volumio.local:~/
+scp oled_display_ssd1309-v1.7.22.tar volumio@volumio.local:~/
 
 # 2. SSH into Volumio
 ssh volumio@volumio.local
 # password: volumio
 
 # 3. Extract the source folder (anywhere works — home directory is fine)
-tar xf oled_display_ssd1309-v1.7.21.tar
+tar xf oled_display_ssd1309-v1.7.22.tar
 cd oled_display_ssd1309
 
 # 4. Install via Volumio's plugin manager
@@ -345,7 +360,7 @@ The `volumio plugin install` command reads the plugin's metadata, copies files i
 
 ### Alternative: manual install
 
-Use this method only if `volumio plugin install` is unavailable or fails on your Volumio version.
+Use this method only if `volumio plugin install` is unavailable or fails on your Volumio version.  Note that the manual method does not require `build-essential` to be pre-installed: `install.sh` runs `apt-get install build-essential` itself before invoking `npm install`, so the toolchain is always available when needed.
 
 ```bash
 # 1. SSH into Volumio
@@ -355,11 +370,11 @@ ssh volumio@volumio.local
 mkdir -p /data/plugins/user_interface/oled_display_ssd1309
 
 # 3. Transfer the tarball (run on your PC, not the Pi)
-scp oled_display_ssd1309-v1.7.21.tar volumio@volumio.local:/tmp/
+scp oled_display_ssd1309-v1.7.22.tar volumio@volumio.local:/tmp/
 
 # 4. Extract directly into the plugins directory
 cd /data/plugins/user_interface
-tar xf /tmp/oled_display_ssd1309-v1.7.21.tar
+tar xf /tmp/oled_display_ssd1309-v1.7.22.tar
 
 # 5. Run the installer manually
 cd /data/plugins/user_interface/oled_display_ssd1309
