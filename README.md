@@ -1,4 +1,4 @@
-# OLED SSD1309 Display Plugin for Volumio – v1.7.22
+# OLED SSD1309 Display Plugin for Volumio – v1.7.23
 
 > **⚠️ Disclaimer**
 >
@@ -42,6 +42,12 @@ Displays playback information on a 128×64 SSD1309 I2C OLED connected to a Raspb
 ---
 
 ## Changelog
+
+### v1.7.23
+
+**Bug fix:**
+
+1. **"FLAC PCM" no longer appears momentarily after track changes.** When Volumio's `pushState` populates `trackType` (the codec name) before `bitdepth` / `samplerate` / `bitrate` have been resolved by the player backend — a window of typically <100ms but occasionally longer for gapless transitions or slow NAS reads — the audio-info formatter previously combined the codec prefix with its "PCM" placeholder fallback, producing nonsense strings like `"FLAC PCM"`, `"MP3 PCM"`, or `"DSD PCM"`. The formatter now shows the codec alone during the transient (`"FLAC"`), then upgrades to the full string (`"FLAC 24bit / 96kHz"`) on the next state update. The `"PCM"` placeholder is still used as a last-resort fallback when nothing is known about the stream. Same fix applied to the compact variant used by the time-sharing playback layout.
 
 ### v1.7.22
 
@@ -331,14 +337,14 @@ Initial attempt at the reboot/shutdown power-off fix. Used the wrong method name
 
 ```bash
 # 1. Transfer the tarball to Volumio (run on your PC, not the Pi)
-scp oled_display_ssd1309-v1.7.22.tar volumio@volumio.local:~/
+scp oled_display_ssd1309-v1.7.23.tar volumio@volumio.local:~/
 
 # 2. SSH into Volumio
 ssh volumio@volumio.local
 # password: volumio
 
 # 3. Extract the source folder (anywhere works — home directory is fine)
-tar xf oled_display_ssd1309-v1.7.22.tar
+tar xf oled_display_ssd1309-v1.7.23.tar
 cd oled_display_ssd1309
 
 # 4. Install via Volumio's plugin manager
@@ -370,11 +376,11 @@ ssh volumio@volumio.local
 mkdir -p /data/plugins/user_interface/oled_display_ssd1309
 
 # 3. Transfer the tarball (run on your PC, not the Pi)
-scp oled_display_ssd1309-v1.7.22.tar volumio@volumio.local:/tmp/
+scp oled_display_ssd1309-v1.7.23.tar volumio@volumio.local:/tmp/
 
 # 4. Extract directly into the plugins directory
 cd /data/plugins/user_interface
-tar xf /tmp/oled_display_ssd1309-v1.7.22.tar
+tar xf /tmp/oled_display_ssd1309-v1.7.23.tar
 
 # 5. Run the installer manually
 cd /data/plugins/user_interface/oled_display_ssd1309

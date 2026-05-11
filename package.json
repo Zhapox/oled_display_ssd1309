@@ -1,6 +1,6 @@
 {
   "name": "oled_display_ssd1309",
-  "version": "1.7.22",
+  "version": "1.7.23",
   "description": "OLED SSD1309 display plugin for Volumio – shows playback info, clock, progress, audio format, and volume on a 128x64 I2C OLED",
   "main": "index.js",
   "scripts": {
@@ -21,7 +21,7 @@
       "bookworm"
     ],
     "details": "Drives a 128x64 SSD1309 I2C OLED display showing playback info, clock, progress bar, audio format, volume overlay, and screensaver. Designed for Raspberry Pi with zero MPD interference.",
-    "changelog": "v1.7.22: Docs only. Install instructions clarify the store-vs-source distinction and add build-essential as a one-time prerequisite for installing from source (store installs are unaffected — they ship pre-compiled). v1.7.21: Install instructions updated to recommend 'volumio plugin install' from inside the extracted source folder."
+    "changelog": "v1.7.23: Bug fix — 'FLAC PCM' no longer appears momentarily after track changes. The audio-info formatter no longer combines codec name with the 'PCM' placeholder; codec alone is shown during the transient before bitdepth/samplerate are resolved. v1.7.22: Docs only — install instructions clarify the store-vs-source distinction and add build-essential as a one-time prerequisite for source installs."
   },
   "engines": {
     "node": ">=20",
