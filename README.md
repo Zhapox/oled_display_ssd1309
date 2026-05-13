@@ -1,4 +1,4 @@
-# OLED SSD1309 Display Plugin for Volumio – v1.7.23
+# OLED SSD1309 Display Plugin for Volumio – v1.7.27
 
 > **⚠️ Disclaimer**
 >
@@ -42,6 +42,25 @@ Displays playback information on a 128×64 SSD1309 I2C OLED connected to a Raspb
 ---
 
 ## Changelog
+
+### v1.7.27
+
+**Rollback / cleanup:**
+
+1. **Bluetooth no-metadata screens removed (v1.7.24 — v1.7.26).** These were added to handle a Volumio Bluetooth-plugin issue where playback state isn't broadcast over the socket.io `pushState` channel. The Volumio team has been notified and is investigating; their fix will restore normal `pushState` behavior for Bluetooth, after which the regular playback layouts will render BT correctly with no special-case code needed in this plugin. The v1.7.26 polling backstop (which made the Bluetooth screens actually appear by emitting `getState` every 3 seconds) introduced race conditions on track changes and seek-counter jitter, and represented behavior foreign to the Volumio plugin ecosystem — none of that was worth keeping for a workaround that the upstream fix will obsolete. The three layout-specific Bluetooth render methods (Classic/Clock Focus/Minimal) are preserved outside the codebase in case they're needed for a different purpose later.
+2. **Retained:** the `'bt'` entry in `SKIP_TRACK_TYPES` (added in v1.7.24). Once Volumio starts broadcasting BT state correctly, `trackType: 'bt'` will arrive as part of normal pushState events. This entry prevents the codec-prefix logic from labeling the audio-info line "BT 24bit / 96kHz" — `'bt'` is a transport indicator, not a codec name, and skipping it produces a cleaner display.
+
+### v1.7.26
+
+Removed in v1.7.27. State-polling backstop for the Bluetooth-screen feature. See v1.7.27 changelog for rationale.
+
+### v1.7.25
+
+Removed in v1.7.27. Layout-specific Bluetooth screen variants (Classic/Clock Focus/Minimal). See v1.7.27 changelog for rationale.
+
+### v1.7.24
+
+Removed in v1.7.27 (except for the `'bt'` skip-list entry, which is retained). Initial Bluetooth-no-metadata screen. See v1.7.27 changelog for rationale.
 
 ### v1.7.23
 
@@ -337,14 +356,14 @@ Initial attempt at the reboot/shutdown power-off fix. Used the wrong method name
 
 ```bash
 # 1. Transfer the tarball to Volumio (run on your PC, not the Pi)
-scp oled_display_ssd1309-v1.7.23.tar volumio@volumio.local:~/
+scp oled_display_ssd1309-v1.7.27.tar volumio@volumio.local:~/
 
 # 2. SSH into Volumio
 ssh volumio@volumio.local
 # password: volumio
 
 # 3. Extract the source folder (anywhere works — home directory is fine)
-tar xf oled_display_ssd1309-v1.7.23.tar
+tar xf oled_display_ssd1309-v1.7.27.tar
 cd oled_display_ssd1309
 
 # 4. Install via Volumio's plugin manager
@@ -376,11 +395,11 @@ ssh volumio@volumio.local
 mkdir -p /data/plugins/user_interface/oled_display_ssd1309
 
 # 3. Transfer the tarball (run on your PC, not the Pi)
-scp oled_display_ssd1309-v1.7.23.tar volumio@volumio.local:/tmp/
+scp oled_display_ssd1309-v1.7.27.tar volumio@volumio.local:/tmp/
 
 # 4. Extract directly into the plugins directory
 cd /data/plugins/user_interface
-tar xf /tmp/oled_display_ssd1309-v1.7.23.tar
+tar xf /tmp/oled_display_ssd1309-v1.7.27.tar
 
 # 5. Run the installer manually
 cd /data/plugins/user_interface/oled_display_ssd1309
